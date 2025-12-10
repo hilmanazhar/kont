@@ -9,7 +9,13 @@ const IMAGE_BASE = window.location.hostname === 'localhost' ? '/Kontrakan' : '';
 // Helper to get image URL
 function imageUrl(path) {
     if (!path) return '';
-    return IMAGE_BASE + '/' + path;
+    // Remove leading slash if present
+    let cleanPath = path.startsWith('/') ? path.substring(1) : path;
+    // If path doesn't start with uploads, add it
+    if (!cleanPath.startsWith('uploads/') && !cleanPath.startsWith('http')) {
+        cleanPath = 'uploads/' + cleanPath;
+    }
+    return IMAGE_BASE + '/' + cleanPath;
 }
 
 // ==================== State ====================

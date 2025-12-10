@@ -503,36 +503,50 @@
                     </div>
                 `;
 
-                // Build payment info
+                // Build payment info - support multiple payment methods
                 let paymentInfo = '<div class="text-muted" style="font-size: 0.75rem; margin-bottom: var(--space-sm);">INFO PEMBAYARAN:</div>';
                 let hasPaymentInfo = false;
 
-                if (payInfo.bank_name && payInfo.bank_account) {
+                // Parse payment methods
+                const methods = payInfo.payment_methods_parsed || {
+                    banks: payInfo.bank_name ? [{ name: payInfo.bank_name, account: payInfo.bank_account }] : [],
+                    ewallets: payInfo.ewallet_type ? [{ type: payInfo.ewallet_type, number: payInfo.ewallet_number }] : [],
+                    qris: payInfo.qris_image ? [payInfo.qris_image] : []
+                };
+
+                // Show all banks
+                if (methods.banks && methods.banks.length > 0) {
                     hasPaymentInfo = true;
-                    paymentInfo += `
-                        <div class="payment-row">
-                            <div>
-                                <div class="payment-label">${payInfo.bank_name}</div>
-                                <div class="payment-value">${payInfo.bank_account}</div>
+                    methods.banks.forEach(b => {
+                        paymentInfo += `
+                            <div class="payment-row">
+                                <div>
+                                    <div class="payment-label">${b.name}</div>
+                                    <div class="payment-value">${b.account}</div>
+                                </div>
+                                <button class="copy-btn" onclick="copyText('${b.account}')">📋 Copy</button>
                             </div>
-                            <button class="copy-btn" onclick="copyText('${payInfo.bank_account}')">📋 Copy</button>
-                        </div>
-                    `;
+                        `;
+                    });
                 }
 
-                if (payInfo.ewallet_type && payInfo.ewallet_number) {
+                // Show all e-wallets
+                if (methods.ewallets && methods.ewallets.length > 0) {
                     hasPaymentInfo = true;
-                    paymentInfo += `
-                        <div class="payment-row">
-                            <div>
-                                <div class="payment-label">${payInfo.ewallet_type}</div>
-                                <div class="payment-value">${payInfo.ewallet_number}</div>
+                    methods.ewallets.forEach(e => {
+                        paymentInfo += `
+                            <div class="payment-row">
+                                <div>
+                                    <div class="payment-label">${e.type}</div>
+                                    <div class="payment-value">${e.number}</div>
+                                </div>
+                                <button class="copy-btn" onclick="copyText('${e.number}')">📋 Copy</button>
                             </div>
-                            <button class="copy-btn" onclick="copyText('${payInfo.ewallet_number}')">📋 Copy</button>
-                        </div>
-                    `;
+                        `;
+                    });
                 }
 
+                // Show WhatsApp
                 if (payInfo.phone_wa) {
                     hasPaymentInfo = true;
                     paymentInfo += `
@@ -546,14 +560,19 @@
                     `;
                 }
 
-                if (payInfo.qris_image) {
+                // Show all QRIS images
+                if (methods.qris && methods.qris.length > 0) {
                     hasPaymentInfo = true;
-                    paymentInfo += `
-                        <div style="text-align: center; margin-top: var(--space-md);">
-                            <div class="payment-label">QRIS</div>
-                            <img src="${imageUrl(payInfo.qris_image)}" class="qris-img" alt="QRIS">
-                        </div>
-                    `;
+                    paymentInfo += '<div style="display: flex; flex-wrap: wrap; gap: var(--space-sm); justify-content: center; margin-top: var(--space-md);">';
+                    methods.qris.forEach(q => {
+                        paymentInfo += `
+                            <div style="text-align: center;">
+                                <div class="payment-label" style="font-size: 0.7rem;">QRIS</div>
+                                <img src="${imageUrl(q)}" class="qris-img" alt="QRIS" style="max-width: 120px;">
+                            </div>
+                        `;
+                    });
+                    paymentInfo += '</div>';
                 }
 
                 if (!hasPaymentInfo) {
@@ -746,18 +765,33 @@
                 year: 'numeric'
             });
 
-            // Build payment info section
+            // Build payment info section - support multiple methods
             let paymentSection = '';
             if (data.paymentInfo) {
                 const pi = data.paymentInfo;
                 let paymentMethods = [];
 
-                if (pi.bank_name && pi.bank_account) {
-                    paymentMethods.push(`🏦 ${pi.bank_name}: ${pi.bank_account}`);
+                // Parse multiple payment methods
+                const methods = pi.payment_methods_parsed || {
+                    banks: pi.bank_name ? [{ name: pi.bank_name, account: pi.bank_account }] : [],
+                    ewallets: pi.ewallet_type ? [{ type: pi.ewallet_type, number: pi.ewallet_number }] : []
+                };
+
+                // Add all banks
+                if (methods.banks && methods.banks.length > 0) {
+                    methods.banks.forEach(b => {
+                        paymentMethods.push(`🏦 ${b.name}: ${b.account}`);
+                    });
                 }
-                if (pi.ewallet_type && pi.ewallet_number) {
-                    paymentMethods.push(`📱 ${pi.ewallet_type}: ${pi.ewallet_number}`);
+
+                // Add all e-wallets
+                if (methods.ewallets && methods.ewallets.length > 0) {
+                    methods.ewallets.forEach(e => {
+                        paymentMethods.push(`📱 ${e.type}: ${e.number}`);
+                    });
                 }
+
+                // Add WhatsApp if available
                 if (pi.phone_wa) {
                     paymentMethods.push(`📞 WA: ${pi.phone_wa}`);
                 }
