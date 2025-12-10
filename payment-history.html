@@ -150,16 +150,18 @@
         </div>
     </div>
 
-    <!-- Receipt View Modal -->
+    <!-- Payment Detail Modal -->
     <div class="modal-overlay" id="receiptModal">
         <div class="modal">
             <div class="modal-handle"></div>
-            <h3 class="modal-title">Bukti Transfer</h3>
+            <h3 class="modal-title" id="receiptModalTitle">Detail Pembayaran</h3>
             <div id="receiptContent" style="text-align: center;">
-                <div style="font-size: 1.5rem; font-weight: 700; color: var(--green); margin-bottom: var(--space-sm);"
-                    id="receiptAmount">Rp 0</div>
+                <div style="font-size: 1.5rem; font-weight: 700; margin-bottom: var(--space-sm);" id="receiptAmount">Rp
+                    0</div>
                 <div class="text-muted" style="margin-bottom: var(--space-md);" id="receiptDirection">-</div>
-                <img id="receiptImage" style="max-width: 100%; max-height: 60vh; border-radius: var(--radius-md);">
+                <div id="receiptImageContainer">
+                    <img id="receiptImage" style="max-width: 100%; max-height: 50vh; border-radius: var(--radius-md);">
+                </div>
                 <div class="text-muted" style="font-size: 0.75rem; margin-top: var(--space-sm);" id="receiptDate">-
                 </div>
             </div>
@@ -321,12 +323,11 @@
                 const direction = isOutgoing ? `Kamu → ${otherName}` : `${s.from_name} → Kamu`;
                 const amountClass = isOutgoing ? 'out' : '';
                 const prefix = isOutgoing ? '-' : '+';
-                const hasReceipt = s.receipt_image ? 'has-receipt' : '';
                 const receiptIcon = s.receipt_image ? `<span style="font-size: 0.7rem; color: var(--green); margin-left: 4px;">📎</span>` : '';
 
                 return `
-                    <div class="payment-item ${hasReceipt}" style="cursor: ${s.receipt_image ? 'pointer' : 'default'};" 
-                        ${s.receipt_image ? `onclick="showReceipt('${s.receipt_image}', '${direction}', ${s.amount}, '${s.created_at}')"` : ''}>
+                    <div class="payment-item" style="cursor: pointer;" 
+                        onclick="showPaymentDetail('${direction}', ${s.amount}, '${s.created_at}', '${s.receipt_image || ''}', ${isOutgoing})">
                         <div class="payment-info">
                             <div class="payment-users">${direction}${receiptIcon}</div>
                             <div class="payment-date">${formatDateRelative(s.created_at)} · ${formatDateFull(s.created_at)}</div>
@@ -354,12 +355,28 @@
             renderPayments(activeUser);
         });
 
-        // Show receipt modal
-        function showReceipt(imagePath, direction, amount, createdAt) {
-            document.getElementById('receiptImage').src = imageUrl(imagePath);
+        // Show payment detail modal
+        function showPaymentDetail(direction, amount, createdAt, imagePath, isOutgoing) {
+            const amountColor = isOutgoing ? 'var(--red)' : 'var(--green)';
+            const prefix = isOutgoing ? '-' : '+';
+
+            document.getElementById('receiptModalTitle').textContent = 'Detail Pembayaran';
+            document.getElementById('receiptAmount').style.color = amountColor;
+            document.getElementById('receiptAmount').textContent = prefix + 'Rp ' + parseFloat(amount).toLocaleString('id-ID');
             document.getElementById('receiptDirection').textContent = direction;
-            document.getElementById('receiptAmount').textContent = 'Rp ' + parseFloat(amount).toLocaleString('id-ID');
             document.getElementById('receiptDate').textContent = formatDateFull(createdAt);
+
+            // Handle receipt image
+            const imgContainer = document.getElementById('receiptImageContainer');
+            const img = document.getElementById('receiptImage');
+            if (imagePath && imagePath !== 'null' && imagePath !== '') {
+                img.src = imageUrl(imagePath);
+                imgContainer.classList.remove('hidden');
+                document.getElementById('receiptModalTitle').textContent = 'Detail Pembayaran + Bukti TF';
+            } else {
+                imgContainer.classList.add('hidden');
+            }
+
             openModal('receiptModal');
         }
     </script>
