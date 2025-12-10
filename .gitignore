@@ -10,8 +10,5 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Uploads (optional - jika mau track, hapus baris ini)
-uploads/
-
-# Database files (hanya untuk reference, jangan upload data)
+# Database backup files
 *.sql.bak
