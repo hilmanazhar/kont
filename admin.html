@@ -256,6 +256,7 @@
             <button class="tab-btn" data-tab="transactions">📋 Transaksi</button>
             <button class="tab-btn" data-tab="payments">💸 Pembayaran</button>
             <button class="tab-btn" data-tab="info">📢 Info</button>
+            <button class="tab-btn" data-tab="reset">⚠️ Reset</button>
         </div>
 
         <!-- Dashboard Tab -->
@@ -360,6 +361,80 @@
             </div>
             <div class="data-list" id="infoList">
                 <div class="empty-state">Loading...</div>
+            </div>
+        </div>
+
+        <!-- Reset Tab -->
+        <div class="tab-content" id="tab-reset">
+            <div class="section-title" style="color: var(--red);">
+                <svg viewBox="0 0 24 24">
+                    <path
+                        d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                    <line x1="12" y1="9" x2="12" y2="13" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+                Reset Data - HATI-HATI!
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: var(--space-lg); font-size: 0.875rem;">
+                ⚠️ Tindakan ini <strong>TIDAK BISA DIBATALKAN</strong>. Data yang dihapus tidak bisa dikembalikan.
+            </p>
+
+            <div class="card section-gap">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm);">
+                    <div>
+                        <strong>Reset Transaksi</strong>
+                        <p style="font-size: 0.75rem; color: var(--text-muted);">Hapus semua expenses & splits</p>
+                    </div>
+                    <button class="btn btn-danger" onclick="confirmReset('transaksi', 'Semua transaksi')">Reset</button>
+                </div>
+            </div>
+
+            <div class="card section-gap">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm);">
+                    <div>
+                        <strong>Reset Info</strong>
+                        <p style="font-size: 0.75rem; color: var(--text-muted);">Hapus semua info kontrakan</p>
+                    </div>
+                    <button class="btn btn-danger" onclick="confirmReset('info', 'Semua info')">Reset</button>
+                </div>
+            </div>
+
+            <div class="card section-gap">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm);">
+                    <div>
+                        <strong>Reset Riwayat Pembayaran</strong>
+                        <p style="font-size: 0.75rem; color: var(--text-muted);">Hapus semua settlements</p>
+                    </div>
+                    <button class="btn btn-danger"
+                        onclick="confirmReset('settlements', 'Semua riwayat pembayaran')">Reset</button>
+                </div>
+            </div>
+
+            <div class="card section-gap">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm);">
+                    <div>
+                        <strong>Reset Notifikasi</strong>
+                        <p style="font-size: 0.75rem; color: var(--text-muted);">Hapus semua notifikasi</p>
+                    </div>
+                    <button class="btn btn-danger"
+                        onclick="confirmReset('notifications', 'Semua notifikasi')">Reset</button>
+                </div>
+            </div>
+
+            <div class="card" style="border: 2px solid var(--red); background: var(--red-light);">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm);">
+                    <div>
+                        <strong style="color: var(--red);">🔥 Reset SEMUA SISTEM</strong>
+                        <p style="font-size: 0.75rem; color: var(--text-muted);">Hapus transaksi, info, payments,
+                            notifikasi (users tetap)</p>
+                    </div>
+                    <button class="btn btn-danger" onclick="confirmReset('all', 'SEMUA DATA SISTEM')">RESET!</button>
+                </div>
             </div>
         </div>
     </div>
@@ -629,6 +704,51 @@
                 await fetch(`${API_BASE}/auth.php?action=logout`, { credentials: 'include' });
             } catch { }
             window.location.href = 'login.html';
+        }
+
+        // Reset data confirmation and execution
+        let pendingResetType = null;
+        let pendingResetLabel = null;
+
+        function confirmReset(type, label) {
+            pendingResetType = type;
+            pendingResetLabel = label;
+            const confirmed = confirm(`⚠️ PERINGATAN!\n\nAnda akan menghapus: ${label}\n\nTindakan ini TIDAK BISA DIBATALKAN!\n\nLanjutkan?`);
+            if (confirmed) {
+                const doubleConfirm = confirm(`🔥 KONFIRMASI TERAKHIR!\n\nYakin hapus ${label}?\n\nKetik OK untuk melanjutkan.`);
+                if (doubleConfirm) {
+                    executeReset(type, label);
+                }
+            }
+        }
+
+        async function executeReset(type, label) {
+            try {
+                showLoading();
+                const res = await fetch(`${API_BASE}/reset.php`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type })
+                });
+                const data = await res.json();
+                hideLoading();
+
+                if (res.ok) {
+                    showToast(data.message || `${label} berhasil dihapus!`, 'success');
+                    // Reload data
+                    await loadAllData();
+                    renderDashboard();
+                    renderTransactions();
+                    renderPayments();
+                    renderInfo();
+                } else {
+                    showToast(data.error || 'Reset gagal', 'error');
+                }
+            } catch (err) {
+                hideLoading();
+                showToast('Reset gagal: ' + err.message, 'error');
+            }
         }
 
         // Search/filter event listeners
