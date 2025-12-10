@@ -321,7 +321,7 @@
 
             // Info
             try {
-                const res = await fetch('/Kontrakan/api/info.php?limit=2', { credentials: 'include' });
+                const res = await fetch(`${API_BASE}/info.php?limit=2`, { credentials: 'include' });
                 const data = await res.json();
                 const infoList = document.getElementById('infoList');
 
@@ -542,7 +542,7 @@
             }
 
             try {
-                const res = await fetch('/Kontrakan/api/info.php', {
+                const res = await fetch(`${API_BASE}/info.php`, {
                     method: 'POST',
                     credentials: 'include',
                     body: formData

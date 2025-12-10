@@ -195,7 +195,7 @@
 
             // Load payment info
             try {
-                const res = await fetch(`/Kontrakan/api/payment_info.php?user_id=${state.user.id}`, { credentials: 'include' });
+                const res = await fetch(`${API_BASE}/payment_info.php?user_id=${state.user.id}`, { credentials: 'include' });
                 const data = await res.json();
                 if (data.payment_info) {
                     const p = data.payment_info;
@@ -254,7 +254,7 @@
                     formData.append('qris_image', qrisFile);
                 }
 
-                const res = await fetch('/Kontrakan/api/payment_info.php', {
+                const res = await fetch(`${API_BASE}/payment_info.php`, {
                     method: 'POST',
                     credentials: 'include',
                     body: formData

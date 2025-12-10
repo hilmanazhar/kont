@@ -90,7 +90,7 @@
         async function loadInfoList() {
             const container = document.getElementById('infoList');
             try {
-                const res = await fetch('/Kontrakan/api/info.php?limit=50', { credentials: 'include' });
+                const res = await fetch(`${API_BASE}/info.php?limit=50`, { credentials: 'include' });
                 const data = await res.json();
 
                 if (!data.info || data.info.length === 0) {
@@ -178,7 +178,7 @@
             }
 
             try {
-                const res = await fetch('/Kontrakan/api/info.php', {
+                const res = await fetch(`${API_BASE}/info.php`, {
                     method: 'POST',
                     credentials: 'include',
                     body: formData

@@ -24,7 +24,8 @@ function listUsers() {
     requireAuth();
     
     $pdo = getDB();
-    $stmt = $pdo->query("SELECT id, username, display_name, role FROM users ORDER BY display_name");
+    // Exclude admin users from the list - they should not participate in transactions
+    $stmt = $pdo->query("SELECT id, username, display_name, role FROM users WHERE role != 'admin' ORDER BY display_name");
     $users = $stmt->fetchAll();
     
     jsonResponse(['users' => $users]);

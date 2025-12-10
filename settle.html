@@ -432,11 +432,11 @@
 
             try {
                 // Get expense details
-                const detailRes = await fetch(`/Kontrakan/api/debt_details.php?creditor_id=${creditorId}&debtor_id=${state.user.id}`, { credentials: 'include' });
+                const detailRes = await fetch(`${API_BASE}/debt_details.php?creditor_id=${creditorId}&debtor_id=${state.user.id}`, { credentials: 'include' });
                 const detailData = await detailRes.json();
 
                 // Get payment info
-                const paymentRes = await fetch(`/Kontrakan/api/payment_info.php?user_id=${creditorId}`, { credentials: 'include' });
+                const paymentRes = await fetch(`${API_BASE}/payment_info.php?user_id=${creditorId}`, { credentials: 'include' });
                 const paymentData = await paymentRes.json();
                 const payInfo = paymentData.payment_info || {};
 
@@ -588,16 +588,16 @@
 
             try {
                 // Get expense details
-                const detailRes = await fetch(`/Kontrakan/api/debt_details.php?creditor_id=${state.user.id}&debtor_id=${debtorId}`, { credentials: 'include' });
+                const detailRes = await fetch(`${API_BASE}/debt_details.php?creditor_id=${state.user.id}&debtor_id=${debtorId}`, { credentials: 'include' });
                 const detailData = await detailRes.json();
 
                 // Get debtor's payment info (for phone number)
-                const paymentRes = await fetch(`/Kontrakan/api/payment_info.php?user_id=${debtorId}`, { credentials: 'include' });
+                const paymentRes = await fetch(`${API_BASE}/payment_info.php?user_id=${debtorId}`, { credentials: 'include' });
                 const paymentData = await paymentRes.json();
                 const debtorPhone = paymentData.payment_info?.phone_wa || null;
 
                 // Get creditor's (my) payment info for the WA message
-                const myPaymentRes = await fetch(`/Kontrakan/api/payment_info.php?user_id=${state.user.id}`, { credentials: 'include' });
+                const myPaymentRes = await fetch(`${API_BASE}/payment_info.php?user_id=${state.user.id}`, { credentials: 'include' });
                 const myPaymentData = await myPaymentRes.json();
                 const myPaymentInfo = myPaymentData.payment_info || {};
 
@@ -831,7 +831,7 @@ _Pesan otomatis dari Catatan Kontrakan_`;
 
             try {
                 // Creditor confirming payment FROM debtor TO themselves
-                const res = await fetch('/Kontrakan/api/settlements.php', {
+                const res = await fetch(`${API_BASE}/settlements.php`, {
                     method: 'POST',
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
@@ -863,7 +863,7 @@ _Pesan otomatis dari Catatan Kontrakan_`;
 
             try {
                 // Create settlement for the full remaining amount
-                const res = await fetch('/Kontrakan/api/settlements.php', {
+                const res = await fetch(`${API_BASE}/settlements.php`, {
                     method: 'POST',
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
@@ -901,7 +901,7 @@ _Pesan otomatis dari Catatan Kontrakan_`;
                 let res;
                 if (confirmMode === 'debtor') {
                     // I (debtor) am recording that I paid someone (creditor)
-                    res = await fetch('/Kontrakan/api/settlements.php', {
+                    res = await fetch(`${API_BASE}/settlements.php`, {
                         method: 'POST',
                         credentials: 'include',
                         headers: { 'Content-Type': 'application/json' },
@@ -912,7 +912,7 @@ _Pesan otomatis dari Catatan Kontrakan_`;
                     });
                 } else {
                     // I (creditor) am confirming that someone (debtor) paid me
-                    res = await fetch('/Kontrakan/api/settlements.php', {
+                    res = await fetch(`${API_BASE}/settlements.php`, {
                         method: 'POST',
                         credentials: 'include',
                         headers: { 'Content-Type': 'application/json' },

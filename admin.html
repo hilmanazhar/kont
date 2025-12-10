@@ -415,9 +415,9 @@
         async function loadAllData() {
             try {
                 const [expData, setData, infoData] = await Promise.all([
-                    fetch('/Kontrakan/api/expenses.php?limit=500', { credentials: 'include' }).then(r => r.json()),
-                    fetch('/Kontrakan/api/settlements.php?limit=500', { credentials: 'include' }).then(r => r.json()),
-                    fetch('/Kontrakan/api/info.php?limit=100', { credentials: 'include' }).then(r => r.json())
+                    fetch(`${API_BASE}/expenses.php?limit=500`, { credentials: 'include' }).then(r => r.json()),
+                    fetch(`${API_BASE}/settlements.php?limit=500`, { credentials: 'include' }).then(r => r.json()),
+                    fetch(`${API_BASE}/info.php?limit=100`, { credentials: 'include' }).then(r => r.json())
                 ]);
                 allExpenses = expData.expenses || [];
                 allSettlements = setData.settlements || [];
@@ -626,7 +626,7 @@
         // Logout
         async function logout() {
             try {
-                await fetch('/Kontrakan/api/auth.php?action=logout', { credentials: 'include' });
+                await fetch(`${API_BASE}/auth.php?action=logout`, { credentials: 'include' });
             } catch { }
             window.location.href = 'login.html';
         }
