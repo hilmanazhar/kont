@@ -1,0 +1,322 @@
+/**
+ * Catatan Kontrakan - Main JavaScript
+ */
+
+// Auto-detect environment: local (XAMPP) vs production (Railway)
+const API_BASE = window.location.hostname === 'localhost' ? '/Kontrakan/api' : '/api';
+
+// ==================== State ====================
+const state = {
+    user: null,
+    users: [],
+    notifications: [],
+    unreadCount: 0
+};
+
+// ==================== Theme ====================
+function initTheme() {
+    const saved = localStorage.getItem('theme');
+    if (saved) {
+        document.documentElement.setAttribute('data-theme', saved);
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+    }
+    updateThemeIcons();
+}
+
+function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    updateThemeIcons();
+}
+
+function getTheme() {
+    return document.documentElement.getAttribute('data-theme') || 'light';
+}
+
+function updateThemeIcons() {
+    const isDark = getTheme() === 'dark';
+    document.querySelectorAll('.theme-toggle-icon').forEach(el => {
+        el.innerHTML = isDark ? icons.sun : icons.moon;
+    });
+}
+
+// ==================== API Helpers ====================
+async function api(endpoint, options = {}) {
+    const url = `${API_BASE}/${endpoint}`;
+    const config = {
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        ...options
+    };
+
+    try {
+        const response = await fetch(url, config);
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Request failed');
+        }
+
+        return data;
+    } catch (error) {
+        console.error('API Error:', error);
+        throw error;
+    }
+}
+
+async function apiGet(endpoint) {
+    return api(endpoint);
+}
+
+async function apiPost(endpoint, body) {
+    return api(endpoint, { method: 'POST', body: JSON.stringify(body) });
+}
+
+async function apiPut(endpoint, body) {
+    return api(endpoint, { method: 'PUT', body: JSON.stringify(body) });
+}
+
+async function apiDelete(endpoint) {
+    return api(endpoint, { method: 'DELETE' });
+}
+
+// ==================== Auth ====================
+async function checkAuth() {
+    try {
+        const data = await apiGet('auth.php?action=me');
+        state.user = data.user;
+        return true;
+    } catch {
+        state.user = null;
+        return false;
+    }
+}
+
+async function login(username, password) {
+    const data = await apiPost('auth.php?action=login', { username, password });
+    state.user = data.user;
+    return data;
+}
+
+async function logout() {
+    await apiPost('auth.php?action=logout', {});
+    state.user = null;
+    window.location.href = 'login.html';
+}
+
+// ==================== Users ====================
+async function loadUsers() {
+    const data = await apiGet('users.php');
+    state.users = data.users;
+    return data.users;
+}
+
+function getUserById(id) {
+    return state.users.find(u => u.id == id);
+}
+
+function getUserInitials(name) {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+}
+
+// ==================== Notifications ====================
+async function loadNotifications() {
+    const data = await apiGet('notifications.php');
+    state.notifications = data.notifications;
+    state.unreadCount = data.unread_count;
+    updateNotificationBadge();
+    return data;
+}
+
+async function markAllRead() {
+    await apiPut('notifications.php?action=read-all', {});
+    state.unreadCount = 0;
+    updateNotificationBadge();
+}
+
+function updateNotificationBadge() {
+    document.querySelectorAll('.nav-badge').forEach(badge => {
+        if (state.unreadCount > 0) {
+            badge.textContent = state.unreadCount > 9 ? '9+' : state.unreadCount;
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+    });
+}
+
+// ==================== Balance ====================
+async function loadBalance() {
+    return await apiGet('balance.php');
+}
+
+function getMyBalance(balances) {
+    if (!state.user) return null;
+    return balances.find(b => b.user_id == state.user.id);
+}
+
+// ==================== Expenses ====================
+async function loadExpenses(category = null) {
+    let endpoint = 'expenses.php';
+    if (category) endpoint += `?category=${encodeURIComponent(category)}`;
+    return await apiGet(endpoint);
+}
+
+async function createExpense(data) {
+    return await apiPost('expenses.php', data);
+}
+
+async function deleteExpense(id) {
+    return await apiDelete(`expenses.php?id=${id}`);
+}
+
+// ==================== Settlements ====================
+async function loadSettlements() {
+    return await apiGet('settlements.php');
+}
+
+async function createSettlement(toUser, amount) {
+    return await apiPost('settlements.php', { to_user: toUser, amount });
+}
+
+// ==================== Upload ====================
+async function uploadReceipt(file) {
+    const formData = new FormData();
+    formData.append('receipt', file);
+
+    const response = await fetch(`${API_BASE}/upload.php`, {
+        method: 'POST',
+        credentials: 'include',
+        body: formData
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Upload failed');
+
+    return data;
+}
+
+// ==================== UI Helpers ====================
+function formatCurrency(amount) {
+    const num = parseFloat(amount);
+    const prefix = num >= 0 ? '+' : '';
+    return prefix + 'Rp ' + Math.abs(num).toLocaleString('id-ID');
+}
+
+function formatCurrencyPlain(amount) {
+    return 'Rp ' + parseFloat(amount).toLocaleString('id-ID');
+}
+
+function formatCurrencyShort(amount) {
+    const num = parseFloat(amount);
+    if (num >= 1000000) {
+        return 'Rp ' + (num / 1000000).toFixed(1) + 'jt';
+    }
+    if (num >= 1000) {
+        return 'Rp ' + (num / 1000).toFixed(0) + 'rb';
+    }
+    return 'Rp ' + num.toLocaleString('id-ID');
+}
+
+function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diff = now - date;
+
+    if (diff < 60000) return 'Baru saja';
+    if (diff < 3600000) return `${Math.floor(diff / 60000)}m lalu`;
+    if (diff < 86400000) return `${Math.floor(diff / 3600000)}j lalu`;
+    if (diff < 604800000) return `${Math.floor(diff / 86400000)}h lalu`;
+
+    return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+}
+
+// ==================== Toast ====================
+function showToast(message, type = 'info') {
+    let container = document.querySelector('.toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    container.appendChild(toast);
+
+    setTimeout(() => toast.remove(), 3000);
+}
+
+// ==================== Loading ====================
+function showLoading() {
+    let overlay = document.querySelector('.loading-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'loading-overlay';
+        overlay.innerHTML = '<div class="spinner"></div>';
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;z-index:5000;';
+        document.body.appendChild(overlay);
+    }
+    overlay.style.display = 'flex';
+}
+
+function hideLoading() {
+    const overlay = document.querySelector('.loading-overlay');
+    if (overlay) overlay.style.display = 'none';
+}
+
+// ==================== Modal ====================
+function openModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) modal.classList.add('active');
+}
+
+function closeModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) modal.classList.remove('active');
+}
+
+// ==================== Navigation ====================
+function updateActiveNav() {
+    const currentPage = window.location.pathname.split('/').pop() || 'dashboard.html';
+    document.querySelectorAll('.nav-item').forEach(item => {
+        const href = item.getAttribute('href');
+        item.classList.toggle('active', href === currentPage);
+    });
+}
+
+// ==================== PWA ====================
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+});
+
+function installPWA() {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choice) => {
+            if (choice.outcome === 'accepted') {
+                showToast('App berhasil diinstall!', 'success');
+            }
+            deferredPrompt = null;
+        });
+    }
+}
+
+// ==================== Init ====================
+document.addEventListener('DOMContentLoaded', () => {
+    initTheme();
+    updateActiveNav();
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/Kontrakan/sw.js')
+            .then(() => console.log('SW registered'))
+            .catch(err => console.error('SW failed:', err));
+    }
+});

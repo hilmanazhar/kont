@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#fafafa">
+    <title>Profil - Catatan Kontrakan</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="icons/icon-192.png">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .qris-preview {
+            max-width: 150px;
+            border-radius: var(--radius-md);
+            margin-top: var(--space-sm);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">Profil</h1>
+            <button class="icon-btn" onclick="toggleTheme()"><span class="theme-toggle-icon"></span></button>
+        </div>
+
+        <!-- Profile Card -->
+        <div class="section" style="text-align: center; padding: var(--space-xl);">
+            <div class="avatar" style="width: 64px; height: 64px; font-size: 1.5rem; margin: 0 auto var(--space-md);"
+                id="profileAvatar">?</div>
+            <h2 id="profileName">Loading...</h2>
+            <p class="text-muted" id="profileRole" style="font-size: 0.875rem;">-</p>
+        </div>
+
+        <!-- Basic Settings -->
+        <div class="section">
+            <div class="section-header">
+                <span class="icon"><svg viewBox="0 0 24 24">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                    </svg></span>
+                <span class="section-title">Pengaturan</span>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Nama Tampilan</label>
+                <input type="text" class="form-control" id="displayName">
+            </div>
+            <div class="form-group">
+                <label class="form-label">No. WhatsApp</label>
+                <input type="tel" class="form-control" id="phoneWa" placeholder="08xxxxxxxxxx">
+            </div>
+            <button class="btn btn-primary btn-full" id="saveProfileBtn">Simpan</button>
+        </div>
+
+        <!-- Payment Info -->
+        <div class="section">
+            <div class="section-header">
+                <span class="icon"><svg viewBox="0 0 24 24">
+                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                        <line x1="1" y1="10" x2="23" y2="10" />
+                    </svg></span>
+                <span class="section-title">Info Pembayaran</span>
+            </div>
+            <p class="text-muted" style="font-size: 0.75rem; margin-bottom: var(--space-md);">Info ini akan ditampilkan
+                saat teman mau bayar hutang ke kamu</p>
+
+            <div class="form-group">
+                <label class="form-label">Nama Bank</label>
+                <input type="text" class="form-control" id="bankName" placeholder="BCA, Mandiri, BNI, dll">
+            </div>
+            <div class="form-group">
+                <label class="form-label">No. Rekening</label>
+                <input type="text" class="form-control" id="bankAccount" placeholder="1234567890">
+            </div>
+            <div class="form-group">
+                <label class="form-label">E-Wallet</label>
+                <input type="text" class="form-control" id="ewalletType" placeholder="GoPay, OVO, Dana, dll">
+            </div>
+            <div class="form-group">
+                <label class="form-label">No. E-Wallet</label>
+                <input type="text" class="form-control" id="ewalletNumber" placeholder="08xxxxxxxxxx">
+            </div>
+            <div class="form-group">
+                <label class="form-label">QRIS</label>
+                <div class="upload-area" id="qrisUploadArea">
+                    <svg viewBox="0 0 24 24"
+                        style="width: 32px; height: 32px; stroke: var(--text-muted); stroke-width: 1.5; fill: none;">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <polyline points="21 15 16 10 5 21" />
+                    </svg>
+                    <div style="margin-top: 8px;">Upload gambar QRIS</div>
+                    <input type="file" id="qrisInput" accept="image/*" hidden>
+                </div>
+                <img id="qrisPreview" class="qris-preview hidden">
+            </div>
+            <button class="btn btn-primary btn-full" id="savePaymentBtn">Simpan Info Pembayaran</button>
+        </div>
+
+        <!-- Password -->
+        <div class="section">
+            <div class="section-header">
+                <span class="icon"><svg viewBox="0 0 24 24">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg></span>
+                <span class="section-title">Ubah Password</span>
+            </div>
+            <form id="passwordForm">
+                <div class="form-group">
+                    <label class="form-label">Password Baru</label>
+                    <input type="password" class="form-control" id="newPassword" required minlength="6">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Konfirmasi</label>
+                    <input type="password" class="form-control" id="confirmPassword" required minlength="6">
+                </div>
+                <button type="submit" class="btn btn-full">Ubah</button>
+            </form>
+        </div>
+
+        <!-- Admin -->
+        <div class="section hidden" id="adminSection">
+            <div class="section-header">
+                <span class="icon"><svg viewBox="0 0 24 24">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    </svg></span>
+                <span class="section-title">Admin</span>
+            </div>
+            <a href="admin.html" class="btn btn-full">Buka Admin Panel</a>
+        </div>
+
+        <!-- Logout -->
+        <button class="btn btn-danger btn-full" id="logoutBtn" style="margin-top: var(--space-md);">Keluar</button>
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item">
+            <span class="icon"><svg viewBox="0 0 24 24">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                    <polyline points="9 22 9 12 15 12 15 22" />
+                </svg></span>
+            <span>Home</span>
+        </a>
+        <a href="history.html" class="nav-item">
+            <span class="icon"><svg viewBox="0 0 24 24">
+                    <path d="M12 8v4l3 3" />
+                    <circle cx="12" cy="12" r="10" />
+                </svg></span>
+            <span>Riwayat</span>
+        </a>
+        <a href="settle.html" class="nav-item">
+            <span class="icon"><svg viewBox="0 0 24 24">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                    <line x1="1" y1="10" x2="23" y2="10" />
+                </svg></span>
+            <span>Bayar</span>
+        </a>
+        <a href="notifications.html" class="nav-item">
+            <span class="icon"><svg viewBox="0 0 24 24">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                </svg></span>
+            <span>Notif</span>
+            <span class="nav-badge hidden">0</span>
+        </a>
+        <a href="profile.html" class="nav-item active">
+            <span class="icon"><svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg></span>
+            <span>Profil</span>
+        </a>
+    </nav>
+
+    <script src="js/icons.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        let qrisFile = null;
+
+        (async () => {
+            if (!await checkAuth()) { window.location.href = 'login.html'; return; }
+            await loadNotifications();
+
+            document.getElementById('profileAvatar').textContent = getUserInitials(state.user.display_name);
+            document.getElementById('profileName').textContent = state.user.display_name;
+            document.getElementById('profileRole').textContent = state.user.role === 'admin' ? 'Administrator' : 'Member';
+            document.getElementById('displayName').value = state.user.display_name;
+            document.getElementById('phoneWa').value = state.user.phone_wa || '';
+
+            if (state.user.role === 'admin') document.getElementById('adminSection').classList.remove('hidden');
+
+            // Load payment info
+            try {
+                const res = await fetch(`/Kontrakan/api/payment_info.php?user_id=${state.user.id}`, { credentials: 'include' });
+                const data = await res.json();
+                if (data.payment_info) {
+                    const p = data.payment_info;
+                    document.getElementById('bankName').value = p.bank_name || '';
+                    document.getElementById('bankAccount').value = p.bank_account || '';
+                    document.getElementById('ewalletType').value = p.ewallet_type || '';
+                    document.getElementById('ewalletNumber').value = p.ewallet_number || '';
+                    if (p.qris_image) {
+                        document.getElementById('qrisPreview').src = '/Kontrakan/' + p.qris_image;
+                        document.getElementById('qrisPreview').classList.remove('hidden');
+                    }
+                }
+            } catch (err) { console.error(err); }
+        })();
+
+        // QRIS upload
+        document.getElementById('qrisUploadArea').addEventListener('click', () => {
+            document.getElementById('qrisInput').click();
+        });
+
+        document.getElementById('qrisInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            qrisFile = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('qrisPreview').src = e.target.result;
+                document.getElementById('qrisPreview').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        });
+
+        document.getElementById('saveProfileBtn').addEventListener('click', async () => {
+            try {
+                await apiPut('users.php', {
+                    display_name: document.getElementById('displayName').value.trim(),
+                    phone_wa: document.getElementById('phoneWa').value.trim()
+                });
+                showToast('Tersimpan', 'success');
+            } catch { showToast('Gagal', 'error'); }
+        });
+
+        document.getElementById('savePaymentBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('savePaymentBtn');
+            btn.disabled = true;
+            btn.textContent = 'Menyimpan...';
+
+            try {
+                const formData = new FormData();
+                formData.append('bank_name', document.getElementById('bankName').value.trim());
+                formData.append('bank_account', document.getElementById('bankAccount').value.trim());
+                formData.append('ewallet_type', document.getElementById('ewalletType').value.trim());
+                formData.append('ewallet_number', document.getElementById('ewalletNumber').value.trim());
+
+                if (qrisFile) {
+                    formData.append('qris_image', qrisFile);
+                }
+
+                const res = await fetch('/Kontrakan/api/payment_info.php', {
+                    method: 'POST',
+                    credentials: 'include',
+                    body: formData
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    showToast('Info pembayaran tersimpan', 'success');
+                } else {
+                    throw new Error(data.error || 'Failed');
+                }
+            } catch (err) {
+                showToast('Gagal: ' + err.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Simpan Info Pembayaran';
+            }
+        });
+
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const pw = document.getElementById('newPassword').value;
+            if (pw !== document.getElementById('confirmPassword').value) {
+                showToast('Password tidak cocok', 'error');
+                return;
+            }
+            try {
+                await apiPut('users.php', { new_password: pw });
+                showToast('Password diubah', 'success');
+                document.getElementById('passwordForm').reset();
+            } catch { showToast('Gagal', 'error'); }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            if (confirm('Keluar?')) await logout();
+        });
+    </script>
+</body>
+
+</html>

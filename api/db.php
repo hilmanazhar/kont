@@ -1,0 +1,81 @@
+<?php
+/**
+ * Database Connection
+ * Supports both local (XAMPP) and Railway production
+ */
+
+// Check if running on Railway or local
+if (getenv('RAILWAY_ENVIRONMENT') || getenv('MYSQLHOST')) {
+    // Railway: Use environment variables
+    define('DB_HOST', getenv('MYSQLHOST') ?: 'localhost');
+    define('DB_PORT', getenv('MYSQLPORT') ?: '3306');
+    define('DB_NAME', getenv('MYSQLDATABASE') ?: 'railway');
+    define('DB_USER', getenv('MYSQLUSER') ?: 'root');
+    define('DB_PASS', getenv('MYSQLPASSWORD') ?: '');
+} else {
+    // Local development (XAMPP)
+    define('DB_HOST', 'localhost');
+    define('DB_PORT', '3306');
+    define('DB_NAME', 'kontrakan_db');
+    define('DB_USER', 'root');
+    define('DB_PASS', '');
+}
+
+function getDB() {
+    static $pdo = null;
+    
+    if ($pdo === null) {
+        try {
+            $dsn = "mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME . ";charset=utf8mb4";
+            $pdo = new PDO($dsn, DB_USER, DB_PASS, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false
+            ]);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Database connection failed']);
+            exit;
+        }
+    }
+    
+    return $pdo;
+}
+
+// CORS headers
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header('Content-Type: application/json');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
+session_start();
+
+function jsonResponse($data, $code = 200) {
+    http_response_code($code);
+    echo json_encode($data);
+    exit;
+}
+
+function requireAuth() {
+    if (!isset($_SESSION['user_id'])) {
+        jsonResponse(['error' => 'Unauthorized'], 401);
+    }
+    return $_SESSION['user_id'];
+}
+
+function requireAdmin() {
+    requireAuth();
+    if ($_SESSION['user_role'] !== 'admin') {
+        jsonResponse(['error' => 'Admin access required'], 403);
+    }
+}
+
+function getInput() {
+    $input = file_get_contents('php://input');
+    return json_decode($input, true) ?? [];
+}
