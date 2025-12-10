@@ -1180,3 +1180,397 @@ textarea.form-control {
 .listrik-stats .text-muted {
     color: var(--yellow) !important;
 }
+
+/* ===== iOS-STYLE ANIMATIONS ===== */
+
+/* iOS Spring/Bounce Timing Function */
+:root {
+    --ios-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    --ios-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+    --ios-ease-out: cubic-bezier(0, 0, 0.2, 1);
+    --ios-ease-in: cubic-bezier(0.4, 0, 1, 1);
+    --ios-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Smooth Scroll for iOS feel */
+html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Global transition for all interactive elements */
+a,
+button,
+.btn,
+.card,
+.balance-card,
+.nav-item,
+.icon-btn,
+.form-input,
+.form-select,
+.user-chip,
+input,
+select,
+textarea {
+    transition: all 0.3s var(--ios-ease);
+}
+
+/* iOS-style press effect (scale down) */
+.btn:active,
+.card:active,
+.balance-card:active,
+.nav-item:active,
+.icon-btn:active,
+.user-chip:active {
+    transform: scale(0.96);
+    transition: transform 0.1s var(--ios-ease);
+}
+
+/* iOS Haptic-like visual feedback */
+@keyframes ios-tap {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(0.95);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.tap-feedback {
+    animation: ios-tap 0.2s var(--ios-spring);
+}
+
+/* Page fade-in animation */
+@keyframes ios-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.container {
+    animation: ios-fade-in 0.4s var(--ios-ease) forwards;
+}
+
+/* Card slide-up animation */
+@keyframes ios-slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card,
+.balance-card,
+.transaction-item,
+.settlement-item,
+.info-item {
+    animation: ios-slide-up 0.4s var(--ios-ease) backwards;
+}
+
+/* Staggered animation for list items */
+.card:nth-child(1),
+.transaction-item:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.card:nth-child(2),
+.transaction-item:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.card:nth-child(3),
+.transaction-item:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.card:nth-child(4),
+.transaction-item:nth-child(4) {
+    animation-delay: 0.2s;
+}
+
+.card:nth-child(5),
+.transaction-item:nth-child(5) {
+    animation-delay: 0.25s;
+}
+
+.card:nth-child(6),
+.transaction-item:nth-child(6) {
+    animation-delay: 0.3s;
+}
+
+/* iOS Modal animation */
+@keyframes ios-modal-in {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes ios-modal-out {
+    from {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+}
+
+.modal.show .modal-content {
+    animation: ios-modal-in 0.35s var(--ios-spring) forwards;
+}
+
+.modal.closing .modal-content {
+    animation: ios-modal-out 0.25s var(--ios-ease) forwards;
+}
+
+/* iOS Backdrop blur */
+.modal {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/* iOS-style button hover/press */
+.btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.4s, height 0.4s;
+}
+
+.btn:active::after {
+    width: 200%;
+    height: 200%;
+}
+
+/* iOS-style input focus */
+.form-input:focus,
+.form-select:focus {
+    transform: scale(1.01);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+/* iOS Bottom Navigation bounce */
+.bottom-nav {
+    transition: transform 0.3s var(--ios-spring);
+}
+
+.bottom-nav .nav-item {
+    position: relative;
+}
+
+.bottom-nav .nav-item::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%) scale(0);
+    width: 5px;
+    height: 5px;
+    background: var(--accent);
+    border-radius: 50%;
+    transition: transform 0.3s var(--ios-spring);
+}
+
+.bottom-nav .nav-item.active::before {
+    transform: translateX(-50%) scale(1);
+}
+
+/* iOS-style toggle animation */
+@keyframes ios-toggle {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Toast notification slide-in */
+@keyframes ios-toast-in {
+    from {
+        opacity: 0;
+        transform: translateY(-100%) scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes ios-toast-out {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(-100%) scale(0.9);
+    }
+}
+
+.toast {
+    animation: ios-toast-in 0.4s var(--ios-spring) forwards;
+}
+
+.toast.hiding {
+    animation: ios-toast-out 0.3s var(--ios-ease) forwards;
+}
+
+/* Loading spinner iOS style */
+@keyframes ios-spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--border-color);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: ios-spin 0.8s linear infinite;
+}
+
+/* Pull to refresh indicator */
+@keyframes ios-pulse {
+
+    0%,
+    100% {
+        opacity: 0.6;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+}
+
+/* Skeleton loading animation */
+@keyframes ios-shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.skeleton {
+    background: linear-gradient(90deg,
+            var(--bg-hover) 25%,
+            var(--bg-secondary) 50%,
+            var(--bg-hover) 75%);
+    background-size: 200% 100%;
+    animation: ios-shimmer 1.5s infinite;
+    border-radius: var(--radius-sm);
+}
+
+/* Smooth number counter animation */
+@keyframes ios-count {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.amount,
+.balance-amount {
+    animation: ios-count 0.5s var(--ios-ease) backwards;
+    animation-delay: 0.2s;
+}
+
+/* iOS-style swipe hint */
+@keyframes ios-swipe-hint {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    50% {
+        transform: translateX(5px);
+    }
+}
+
+/* Rubber band scroll effect indicator */
+.scroll-container {
+    overscroll-behavior: contain;
+}
+
+/* Safe area padding for notch devices */
+@supports (padding: max(0px)) {
+    .container {
+        padding-left: max(16px, env(safe-area-inset-left));
+        padding-right: max(16px, env(safe-area-inset-right));
+    }
+
+    .bottom-nav {
+        padding-bottom: max(12px, env(safe-area-inset-bottom));
+    }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

@@ -3,14 +3,16 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#6c63ff">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta name="theme-color" content="#0f0f0f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kontrakan">
     <meta name="description" content="Catatan Kontrakan - Aplikasi pencatatan keuangan bersama">
     <title>Catatan Kontrakan</title>
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="icons/icon-192.png">
-    <link rel="apple-touch-icon" href="icons/icon-192.png">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="icons/icon-512.png">
+    <link rel="apple-touch-icon" href="icons/icon-512.png">
     <link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -19,7 +21,8 @@
         // Redirect to dashboard if logged in, login if not
         (async () => {
             try {
-                const res = await fetch('/Kontrakan/api/auth.php?action=me', { credentials: 'include' });
+                const apiBase = window.location.hostname === 'localhost' ? '/Kontrakan/api' : '/api';
+                const res = await fetch(apiBase + '/auth.php?action=me', { credentials: 'include' });
                 if (res.ok) {
                     window.location.href = 'dashboard.html';
                 } else {
