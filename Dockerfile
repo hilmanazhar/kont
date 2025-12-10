@@ -21,6 +21,10 @@ COPY . /var/www/html/
 RUN chown -R www-data:www-data /var/www/html
 RUN chmod -R 755 /var/www/html
 
+# Ensure uploads folder is writable and exists
+RUN mkdir -p /var/www/html/uploads/info /var/www/html/uploads/qris /var/www/html/uploads/receipts
+RUN chmod -R 777 /var/www/html/uploads
+
 # Use PORT environment variable from Railway
 RUN sed -i 's/80/${PORT}/g' /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
 
