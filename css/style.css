@@ -599,7 +599,7 @@ h3 {
 /* ===== FAB ===== */
 .fab {
     position: fixed;
-    bottom: 80px;
+    bottom: calc(100px + env(safe-area-inset-bottom));
     right: var(--space-md);
     width: 52px;
     height: 52px;

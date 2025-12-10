@@ -25,82 +25,104 @@
             <button class="icon-btn" onclick="toggleTheme()"><span class="theme-toggle-icon"></span></button>
         </div>
 
-        <!-- Profile Card -->
-        <div class="section" style="text-align: center; padding: var(--space-xl);">
-            <div class="avatar" style="width: 64px; height: 64px; font-size: 1.5rem; margin: 0 auto var(--space-md);"
+        <!-- Compact Profile Card -->
+        <div class="section"
+            style="display: flex; align-items: center; gap: var(--space-md); padding: var(--space-md);">
+            <div class="avatar" style="width: 48px; height: 48px; font-size: 1.25rem; flex-shrink: 0;"
                 id="profileAvatar">?</div>
-            <h2 id="profileName">Loading...</h2>
-            <p class="text-muted" id="profileRole" style="font-size: 0.875rem;">-</p>
+            <div style="flex: 1;">
+                <h3 id="profileName" style="margin: 0; font-size: 1rem;">Loading...</h3>
+                <p class="text-muted" id="profileRole" style="font-size: 0.75rem; margin: 0;">-</p>
+            </div>
+            <button class="btn btn-danger" style="padding: var(--space-xs) var(--space-sm); font-size: 0.75rem;"
+                id="logoutBtn">Keluar</button>
         </div>
 
-        <!-- Basic Settings -->
+        <!-- Basic Settings - Inline layout -->
         <div class="section">
-            <div class="section-header">
+            <div class="section-header" style="margin-bottom: var(--space-sm);">
                 <span class="icon"><svg viewBox="0 0 24 24">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                         <circle cx="12" cy="7" r="4" />
                     </svg></span>
                 <span class="section-title">Pengaturan</span>
             </div>
-            <div class="form-group">
-                <label class="form-label">Nama Tampilan</label>
-                <input type="text" class="form-control" id="displayName">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm);">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 0.7rem;">Nama Tampilan</label>
+                    <input type="text" class="form-control" id="displayName" style="padding: var(--space-sm);">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 0.7rem;">No. WhatsApp</label>
+                    <input type="tel" class="form-control" id="phoneWa" placeholder="08xx"
+                        style="padding: var(--space-sm);">
+                </div>
             </div>
-            <div class="form-group">
-                <label class="form-label">No. WhatsApp</label>
-                <input type="tel" class="form-control" id="phoneWa" placeholder="08xxxxxxxxxx">
-            </div>
-            <button class="btn btn-primary btn-full" id="saveProfileBtn">Simpan</button>
+            <button class="btn btn-primary btn-full" id="saveProfileBtn"
+                style="margin-top: var(--space-sm);">Simpan</button>
         </div>
 
-        <!-- Payment Info -->
+        <!-- Payment Info - More Compact -->
         <div class="section">
-            <div class="section-header">
+            <div class="section-header" style="margin-bottom: var(--space-sm);">
                 <span class="icon"><svg viewBox="0 0 24 24">
                         <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
                         <line x1="1" y1="10" x2="23" y2="10" />
                     </svg></span>
                 <span class="section-title">Info Pembayaran</span>
             </div>
-            <p class="text-muted" style="font-size: 0.75rem; margin-bottom: var(--space-md);">Info ini akan ditampilkan
-                saat teman mau bayar hutang ke kamu</p>
+            <p class="text-muted" style="font-size: 0.7rem; margin-bottom: var(--space-sm);">Info ini ditampilkan saat
+                teman bayar hutang ke kamu</p>
 
-            <div class="form-group">
-                <label class="form-label">Nama Bank</label>
-                <input type="text" class="form-control" id="bankName" placeholder="BCA, Mandiri, BNI, dll">
-            </div>
-            <div class="form-group">
-                <label class="form-label">No. Rekening</label>
-                <input type="text" class="form-control" id="bankAccount" placeholder="1234567890">
-            </div>
-            <div class="form-group">
-                <label class="form-label">E-Wallet</label>
-                <input type="text" class="form-control" id="ewalletType" placeholder="GoPay, OVO, Dana, dll">
-            </div>
-            <div class="form-group">
-                <label class="form-label">No. E-Wallet</label>
-                <input type="text" class="form-control" id="ewalletNumber" placeholder="08xxxxxxxxxx">
-            </div>
-            <div class="form-group">
-                <label class="form-label">QRIS</label>
-                <div class="upload-area" id="qrisUploadArea">
-                    <svg viewBox="0 0 24 24"
-                        style="width: 32px; height: 32px; stroke: var(--text-muted); stroke-width: 1.5; fill: none;">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                        <circle cx="8.5" cy="8.5" r="1.5" />
-                        <polyline points="21 15 16 10 5 21" />
-                    </svg>
-                    <div style="margin-top: 8px;">Upload gambar QRIS</div>
-                    <input type="file" id="qrisInput" accept="image/*" hidden>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm);">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 0.7rem;">Bank</label>
+                    <input type="text" class="form-control" id="bankName" placeholder="BCA, Mandiri"
+                        style="padding: var(--space-sm);">
                 </div>
-                <img id="qrisPreview" class="qris-preview hidden">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 0.7rem;">No. Rekening</label>
+                    <input type="text" class="form-control" id="bankAccount" placeholder="1234567890"
+                        style="padding: var(--space-sm);">
+                </div>
             </div>
-            <button class="btn btn-primary btn-full" id="savePaymentBtn">Simpan Info Pembayaran</button>
+            <div
+                style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm); margin-top: var(--space-sm);">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 0.7rem;">E-Wallet</label>
+                    <input type="text" class="form-control" id="ewalletType" placeholder="GoPay, OVO"
+                        style="padding: var(--space-sm);">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 0.7rem;">No. E-Wallet</label>
+                    <input type="text" class="form-control" id="ewalletNumber" placeholder="08xx"
+                        style="padding: var(--space-sm);">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: var(--space-sm); margin-bottom: 0;">
+                <label class="form-label" style="font-size: 0.7rem;">QRIS (opsional)</label>
+                <div style="display: flex; gap: var(--space-sm); align-items: center;">
+                    <div class="upload-area" id="qrisUploadArea" style="flex: 1; padding: var(--space-sm);">
+                        <svg viewBox="0 0 24 24"
+                            style="width: 20px; height: 20px; stroke: var(--text-muted); stroke-width: 1.5; fill: none;">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                            <circle cx="8.5" cy="8.5" r="1.5" />
+                            <polyline points="21 15 16 10 5 21" />
+                        </svg>
+                        <span style="font-size: 0.7rem; margin-left: var(--space-xs);">Upload QRIS</span>
+                        <input type="file" id="qrisInput" accept="image/*" hidden>
+                    </div>
+                    <img id="qrisPreview" class="qris-preview hidden" style="max-width: 60px; max-height: 60px;">
+                </div>
+            </div>
+            <button class="btn btn-primary btn-full" id="savePaymentBtn" style="margin-top: var(--space-sm);">Simpan
+                Info Pembayaran</button>
         </div>
 
-        <!-- Password -->
+        <!-- Password - Compact -->
         <div class="section">
-            <div class="section-header">
+            <div class="section-header" style="margin-bottom: var(--space-sm);">
                 <span class="icon"><svg viewBox="0 0 24 24">
                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                         <path d="M7 11V7a5 5 0 0 1 10 0v4" />
@@ -108,31 +130,26 @@
                 <span class="section-title">Ubah Password</span>
             </div>
             <form id="passwordForm">
-                <div class="form-group">
-                    <label class="form-label">Password Baru</label>
-                    <input type="password" class="form-control" id="newPassword" required minlength="6">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm);">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" style="font-size: 0.7rem;">Password Baru</label>
+                        <input type="password" class="form-control" id="newPassword" required minlength="6"
+                            style="padding: var(--space-sm);">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" style="font-size: 0.7rem;">Konfirmasi</label>
+                        <input type="password" class="form-control" id="confirmPassword" required minlength="6"
+                            style="padding: var(--space-sm);">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Konfirmasi</label>
-                    <input type="password" class="form-control" id="confirmPassword" required minlength="6">
-                </div>
-                <button type="submit" class="btn btn-full">Ubah</button>
+                <button type="submit" class="btn btn-full" style="margin-top: var(--space-sm);">Ubah Password</button>
             </form>
         </div>
 
         <!-- Admin -->
-        <div class="section hidden" id="adminSection">
-            <div class="section-header">
-                <span class="icon"><svg viewBox="0 0 24 24">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                    </svg></span>
-                <span class="section-title">Admin</span>
-            </div>
-            <a href="admin.html" class="btn btn-full">Buka Admin Panel</a>
+        <div class="section hidden" id="adminSection" style="padding: var(--space-md);">
+            <a href="admin.html" class="btn btn-full">🔐 Buka Admin Panel</a>
         </div>
-
-        <!-- Logout -->
-        <button class="btn btn-danger btn-full" id="logoutBtn" style="margin-top: var(--space-md);">Keluar</button>
     </div>
 
     <!-- Bottom Nav -->
