@@ -53,7 +53,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
+// Configure persistent sessions (30 days)
+$sessionLifetime = 60 * 60 * 24 * 30; // 30 days in seconds
+
+// Set session cookie parameters BEFORE session_start
+session_set_cookie_params([
+    'lifetime' => $sessionLifetime,
+    'path' => '/',
+    'domain' => '',
+    'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+    'httponly' => true,
+    'samesite' => 'Lax'
+]);
+
+// Set session garbage collection lifetime
+ini_set('session.gc_maxlifetime', $sessionLifetime);
+
 session_start();
+
+// Regenerate session ID periodically for security (every 30 minutes of activity)
+if (!isset($_SESSION['last_regeneration'])) {
+    $_SESSION['last_regeneration'] = time();
+} elseif (time() - $_SESSION['last_regeneration'] > 1800) {
+    session_regenerate_id(true);
+    $_SESSION['last_regeneration'] = time();
+}
 
 function jsonResponse($data, $code = 200) {
     http_response_code($code);
