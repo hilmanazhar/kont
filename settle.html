@@ -437,10 +437,13 @@
                     historyEl.innerHTML = settlements.slice(0, 5).map(s => {
                         const isFromMe = s.from_user == state.user.id;
                         const isToMe = s.to_user == state.user.id;
+                        const direction = `${s.from_name} → ${s.to_name}`;
+                        const receiptIcon = s.receipt_image ? '<span style="font-size: 0.7rem; color: var(--green); margin-left: 4px;">📎</span>' : '';
                         return `
-                            <div class="transaction-item">
+                            <div class="transaction-item" style="cursor: pointer;" 
+                                onclick="showPaymentDetailInSettle('${direction}', ${s.amount}, '${s.created_at}', '${s.receipt_image || ''}', ${isFromMe})">
                                 <div class="transaction-info">
-                                    <div class="transaction-title">${s.from_name} → ${s.to_name}</div>
+                                    <div class="transaction-title">${direction}${receiptIcon}</div>
                                     <div class="transaction-meta">
                                         <span class="transaction-tag">${formatDate(s.created_at)}</span>
                                         ${isFromMe ? '<span class="transaction-tag hutang">Kamu bayar</span>' : ''}
@@ -1031,6 +1034,27 @@ _Pesan otomatis dari Catatan Kontrakan_`;
             document.getElementById('receiptImage').src = imageUrl(imagePath);
             document.getElementById('receiptAmount').textContent = 'Rp ' + parseFloat(amount).toLocaleString('id-ID');
             document.getElementById('receiptDate').textContent = formatDate(createdAt);
+            openModal('receiptModal');
+        }
+
+        // Show payment detail from settlement history
+        function showPaymentDetailInSettle(direction, amount, createdAt, imagePath, isFromMe) {
+            const amountColor = isFromMe ? 'var(--red)' : 'var(--green)';
+            const prefix = isFromMe ? '-' : '+';
+
+            document.getElementById('receiptAmount').style.color = amountColor;
+            document.getElementById('receiptAmount').textContent = prefix + 'Rp ' + parseFloat(amount).toLocaleString('id-ID');
+            document.getElementById('receiptDate').textContent = formatDate(createdAt);
+
+            // Handle receipt image
+            const img = document.getElementById('receiptImage');
+            if (imagePath && imagePath !== 'null' && imagePath !== '') {
+                img.src = imageUrl(imagePath);
+                img.style.display = 'block';
+            } else {
+                img.style.display = 'none';
+            }
+
             openModal('receiptModal');
         }
 
