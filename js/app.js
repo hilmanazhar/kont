@@ -4,6 +4,13 @@
 
 // Auto-detect environment: local (XAMPP) vs production (Railway)
 const API_BASE = window.location.hostname === 'localhost' ? '/Kontrakan/api' : '/api';
+const IMAGE_BASE = window.location.hostname === 'localhost' ? '/Kontrakan' : '';
+
+// Helper to get image URL
+function imageUrl(path) {
+    if (!path) return '';
+    return IMAGE_BASE + '/' + path;
+}
 
 // ==================== State ====================
 const state = {

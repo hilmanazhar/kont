@@ -108,7 +108,7 @@
                             </div>
                             <div class="info-desc">${i.content || ''}</div>
                         </div>
-                        ${i.image_path ? `<img src="/Kontrakan/${i.image_path}" class="info-image" alt="">` : ''}
+                        ${i.image_path ? `<img src="${imageUrl(i.image_path)}" class="info-image" alt="">` : ''}
                     </div>
                 `).join('');
             } catch {
@@ -124,7 +124,7 @@
         function showInfoDetail(info) {
             const content = document.getElementById('infoDetailContent');
             content.innerHTML = `
-                ${info.image_path ? `<img src="/Kontrakan/${info.image_path}" class="info-detail-image" alt="">` : ''}
+                ${info.image_path ? `<img src="${imageUrl(info.image_path)}" class="info-detail-image" alt="">` : ''}
                 <h2 style="margin-bottom: var(--space-sm);">${info.title}</h2>
                 <div class="info-detail-meta">${info.author_name} · ${formatDateShort(info.created_at)}</div>
                 <div class="info-detail-content">${info.content || 'Tidak ada deskripsi'}</div>

@@ -354,7 +354,7 @@
             }
 
             content.innerHTML = `
-                ${tx.receipt_image ? `<img src="/Kontrakan/${tx.receipt_image}" class="info-detail-image" alt="Bukti">` : ''}
+                ${tx.receipt_image ? `<img src="${imageUrl(tx.receipt_image)}" class="info-detail-image" alt="Bukti">` : ''}
                 <h2 style="margin-bottom: var(--space-sm);">${tx.description}</h2>
                 <div style="font-size: 1.5rem; font-weight: 700; color: ${tx.category === 'Listrik' ? 'var(--text-primary)' : (isPayer ? 'var(--green)' : 'var(--red)')}; margin-bottom: var(--space-md);">
                     Rp ${parseFloat(tx.amount).toLocaleString('id-ID')}
@@ -380,7 +380,7 @@
         });
 
         function showReceipt(path) {
-            document.getElementById('modalReceiptImage').src = '/Kontrakan/' + path;
+            document.getElementById('modalReceiptImage').src = imageUrl(path);
             openModal('receiptModal');
         }
 

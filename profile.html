@@ -204,7 +204,7 @@
                     document.getElementById('ewalletType').value = p.ewallet_type || '';
                     document.getElementById('ewalletNumber').value = p.ewallet_number || '';
                     if (p.qris_image) {
-                        document.getElementById('qrisPreview').src = '/Kontrakan/' + p.qris_image;
+                        document.getElementById('qrisPreview').src = imageUrl(p.qris_image);
                         document.getElementById('qrisPreview').classList.remove('hidden');
                     }
                 }
