@@ -1,16 +1,16 @@
 const CACHE_NAME = 'kontrakan-v1';
 const STATIC_ASSETS = [
-    '/Kontrakan/',
-    '/Kontrakan/login.html',
-    '/Kontrakan/dashboard.html',
-    '/Kontrakan/add-expense.html',
-    '/Kontrakan/history.html',
-    '/Kontrakan/settle.html',
-    '/Kontrakan/notifications.html',
-    '/Kontrakan/profile.html',
-    '/Kontrakan/css/style.css',
-    '/Kontrakan/js/app.js',
-    '/Kontrakan/manifest.json'
+    '/',
+    '/login.html',
+    '/dashboard.html',
+    '/add-expense.html',
+    '/history.html',
+    '/settle.html',
+    '/notifications.html',
+    '/profile.html',
+    '/css/style.css',
+    '/js/app.js',
+    '/manifest.json'
 ];
 
 // Install - cache static assets
@@ -19,6 +19,7 @@ self.addEventListener('install', event => {
         caches.open(CACHE_NAME)
             .then(cache => cache.addAll(STATIC_ASSETS))
             .then(() => self.skipWaiting())
+            .catch(err => console.log('Cache failed:', err))
     );
 });
 

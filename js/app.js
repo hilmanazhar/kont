@@ -315,7 +315,8 @@ document.addEventListener('DOMContentLoaded', () => {
     updateActiveNav();
 
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/Kontrakan/sw.js')
+        const swPath = window.location.hostname === 'localhost' ? '/Kontrakan/sw.js' : '/sw.js';
+        navigator.serviceWorker.register(swPath)
             .then(() => console.log('SW registered'))
             .catch(err => console.error('SW failed:', err));
     }
