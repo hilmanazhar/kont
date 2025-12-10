@@ -35,11 +35,29 @@ function getPaymentInfo() {
     }
     
     $pdo = getDB();
-    $stmt = $pdo->prepare("
-        SELECT id, display_name, phone_wa, payment_methods,
-               bank_name, bank_account, ewallet_type, ewallet_number, qris_image
-        FROM users WHERE id = ?
-    ");
+    
+    // Check if payment_methods column exists
+    $hasPaymentMethods = false;
+    try {
+        $checkCol = $pdo->query("SHOW COLUMNS FROM users LIKE 'payment_methods'");
+        $hasPaymentMethods = $checkCol->rowCount() > 0;
+    } catch (Exception $e) {
+        // Ignore
+    }
+    
+    if ($hasPaymentMethods) {
+        $stmt = $pdo->prepare("
+            SELECT id, display_name, phone_wa, payment_methods,
+                   bank_name, bank_account, ewallet_type, ewallet_number, qris_image
+            FROM users WHERE id = ?
+        ");
+    } else {
+        $stmt = $pdo->prepare("
+            SELECT id, display_name, phone_wa,
+                   bank_name, bank_account, ewallet_type, ewallet_number, qris_image
+            FROM users WHERE id = ?
+        ");
+    }
     $stmt->execute([$userId]);
     $user = $stmt->fetch();
     
