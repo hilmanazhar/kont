@@ -279,8 +279,8 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Jumlah yang dibayar (Rp)</label>
-                    <input type="number" class="form-control" id="confirmAmount" required min="1"
-                        style="font-size: 1.25rem; font-weight: 600; text-align: center;">
+                    <input type="number" class="form-control" id="confirmAmount" required min="1" inputmode="numeric"
+                        pattern="[0-9]*" style="font-size: 1.25rem; font-weight: 600; text-align: center;">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Bukti Transfer (opsional)</label>
@@ -303,6 +303,23 @@
                     <button type="submit" class="btn btn-success btn-full">✓ Konfirmasi</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Receipt View Modal -->
+    <div class="modal-overlay" id="receiptModal">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <h3 class="modal-title">Bukti Transfer</h3>
+            <div style="text-align: center;">
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--green); margin-bottom: var(--space-sm);"
+                    id="receiptAmount">Rp 0</div>
+                <img id="receiptImage" style="max-width: 100%; max-height: 60vh; border-radius: var(--radius-md);">
+                <div class="text-muted" style="font-size: 0.75rem; margin-top: var(--space-sm);" id="receiptDate">-
+                </div>
+            </div>
+            <button class="btn btn-full" style="margin-top: var(--space-lg);"
+                onclick="closeModal('receiptModal')">Tutup</button>
         </div>
     </div>
 
@@ -486,9 +503,10 @@
                         <div style="margin-bottom: var(--space-md);">
                             <div class="text-muted" style="font-size: 0.75rem; margin-bottom: var(--space-sm);">SUDAH DIBAYAR:</div>
                             ${settlements.slice(0, 5).map(s => `
-                                <div class="expense-item">
-                                    <div style="display: flex; justify-content: space-between;">
-                                        <span>Pembayaran</span>
+                                <div class="expense-item" style="cursor: ${s.receipt_image ? 'pointer' : 'default'};" 
+                                    ${s.receipt_image ? `onclick="showSettlementReceipt('${s.receipt_image}', ${s.amount}, '${s.created_at}')"` : ''}>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>Pembayaran ${s.receipt_image ? '<span style="font-size: 0.7rem; color: var(--green);">📎</span>' : ''}</span>
                                         <span style="color: var(--green);">+Rp ${parseFloat(s.amount).toLocaleString('id-ID')}</span>
                                     </div>
                                     <div class="text-muted" style="font-size: 0.6875rem;">${formatDate(s.created_at)}</div>
@@ -1008,7 +1026,15 @@ _Pesan otomatis dari Catatan Kontrakan_`;
             }
         });
 
-        ['debtDetailModal', 'creditDetailModal', 'confirmPaymentModal'].forEach(id => {
+        // Show receipt from settlement
+        function showSettlementReceipt(imagePath, amount, createdAt) {
+            document.getElementById('receiptImage').src = imageUrl(imagePath);
+            document.getElementById('receiptAmount').textContent = 'Rp ' + parseFloat(amount).toLocaleString('id-ID');
+            document.getElementById('receiptDate').textContent = formatDate(createdAt);
+            openModal('receiptModal');
+        }
+
+        ['debtDetailModal', 'creditDetailModal', 'confirmPaymentModal', 'receiptModal'].forEach(id => {
             document.getElementById(id).addEventListener('click', (e) => {
                 if (e.target.classList.contains('modal-overlay')) closeModal(id);
             });

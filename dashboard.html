@@ -134,7 +134,8 @@
             <form id="addListrikForm" enctype="multipart/form-data">
                 <div class="form-group">
                     <label class="form-label">Nominal (Rp)</label>
-                    <input type="number" class="form-control" id="listrikAmount" value="100000" required min="1">
+                    <input type="number" class="form-control" id="listrikAmount" value="100000" required min="1"
+                        inputmode="numeric" pattern="[0-9]*">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Bukti Token</label>
@@ -229,7 +230,8 @@
                 <p style="margin-bottom: var(--space-md);">Bayar ke: <strong id="settleToName">-</strong></p>
                 <div class="form-group">
                     <label class="form-label">Jumlah (Rp)</label>
-                    <input type="number" class="form-control" id="settleAmount" required min="1">
+                    <input type="number" class="form-control" id="settleAmount" required min="1" inputmode="numeric"
+                        pattern="[0-9]*">
                 </div>
                 <div style="display: flex; gap: var(--space-sm);">
                     <button type="button" class="btn btn-full" onclick="closeModal('settleModal')">Batal</button>
