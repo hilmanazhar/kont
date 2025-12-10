@@ -270,14 +270,28 @@ function hideLoading() {
 }
 
 // ==================== Modal ====================
+let scrollPosition = 0;
+
 function openModal(id) {
     const modal = document.getElementById(id);
-    if (modal) modal.classList.add('active');
+    if (modal) {
+        // Save scroll position and lock body
+        scrollPosition = window.pageYOffset;
+        document.body.classList.add('modal-open');
+        document.body.style.top = `-${scrollPosition}px`;
+        modal.classList.add('active');
+    }
 }
 
 function closeModal(id) {
     const modal = document.getElementById(id);
-    if (modal) modal.classList.remove('active');
+    if (modal) {
+        modal.classList.remove('active');
+        // Restore scroll position and unlock body
+        document.body.classList.remove('modal-open');
+        document.body.style.top = '';
+        window.scrollTo(0, scrollPosition);
+    }
 }
 
 // ==================== Navigation ====================

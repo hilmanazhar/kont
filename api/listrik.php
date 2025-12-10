@@ -16,7 +16,7 @@ requireAuth();
 
 $pdo = getDB();
 
-// Get count of Listrik payments per user
+// Get count of Listrik payments per user (excluding admin)
 $stmt = $pdo->query("
     SELECT 
         u.id as user_id,
@@ -25,6 +25,7 @@ $stmt = $pdo->query("
         COALESCE(SUM(e.amount), 0) as total_paid
     FROM users u
     LEFT JOIN expenses e ON u.id = e.paid_by AND e.category = 'Listrik'
+    WHERE u.role != 'admin'
     GROUP BY u.id
     ORDER BY payment_count DESC
 ");
