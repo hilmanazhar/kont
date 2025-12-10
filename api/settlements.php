@@ -57,7 +57,12 @@ function listSettlements() {
 
 function createSettlement() {
     $userId = requireAuth();
-    $input = getInput();
+    
+    // Handle both FormData ($_POST) and JSON
+    $input = $_POST;
+    if (empty($input)) {
+        $input = getInput();
+    }
     
     // Check if this is creditor confirming (from_user is different) or debtor recording (from_user is self)
     $fromUser = (int)($input['from_user'] ?? $userId);
@@ -82,6 +87,34 @@ function createSettlement() {
         jsonResponse(['error' => 'Not authorized to record this settlement'], 403);
     }
     
+    // Handle receipt image upload
+    $receiptImage = null;
+    if (isset($_FILES['receipt_image']) && $_FILES['receipt_image']['error'] === UPLOAD_ERR_OK) {
+        $file = $_FILES['receipt_image'];
+        $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        
+        if (!in_array($file['type'], $allowed)) {
+            jsonResponse(['error' => 'Invalid file type. Only images allowed.'], 400);
+        }
+        
+        if ($file['size'] > 5 * 1024 * 1024) {
+            jsonResponse(['error' => 'File too large (max 5MB)'], 400);
+        }
+        
+        $uploadDir = '../uploads/settlements/';
+        if (!file_exists($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+        
+        $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $filename = 'receipt_' . time() . '_' . uniqid() . '.' . $ext;
+        $filepath = $uploadDir . $filename;
+        
+        if (move_uploaded_file($file['tmp_name'], $filepath)) {
+            $receiptImage = 'uploads/settlements/' . $filename;
+        }
+    }
+    
     $pdo = getDB();
     
     // Verify both users exist
@@ -96,9 +129,9 @@ function createSettlement() {
     try {
         $pdo->beginTransaction();
         
-        // Create settlement
-        $stmt = $pdo->prepare("INSERT INTO settlements (from_user, to_user, amount) VALUES (?, ?, ?)");
-        $stmt->execute([$fromUser, $toUser, $amount]);
+        // Create settlement with receipt
+        $stmt = $pdo->prepare("INSERT INTO settlements (from_user, to_user, amount, receipt_image) VALUES (?, ?, ?, ?)");
+        $stmt->execute([$fromUser, $toUser, $amount, $receiptImage]);
         $settlementId = $pdo->lastInsertId();
         
         // Notify the other party

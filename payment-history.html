@@ -150,6 +150,24 @@
         </div>
     </div>
 
+    <!-- Receipt View Modal -->
+    <div class="modal-overlay" id="receiptModal">
+        <div class="modal">
+            <div class="modal-handle"></div>
+            <h3 class="modal-title">Bukti Transfer</h3>
+            <div id="receiptContent" style="text-align: center;">
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--green); margin-bottom: var(--space-sm);"
+                    id="receiptAmount">Rp 0</div>
+                <div class="text-muted" style="margin-bottom: var(--space-md);" id="receiptDirection">-</div>
+                <img id="receiptImage" style="max-width: 100%; max-height: 60vh; border-radius: var(--radius-md);">
+                <div class="text-muted" style="font-size: 0.75rem; margin-top: var(--space-sm);" id="receiptDate">-
+                </div>
+            </div>
+            <button class="btn btn-full" style="margin-top: var(--space-lg);"
+                onclick="closeModal('receiptModal')">Tutup</button>
+        </div>
+    </div>
+
     <!-- Bottom Nav -->
     <nav class="bottom-nav">
         <a href="dashboard.html" class="nav-item">
@@ -303,11 +321,14 @@
                 const direction = isOutgoing ? `Kamu → ${otherName}` : `${s.from_name} → Kamu`;
                 const amountClass = isOutgoing ? 'out' : '';
                 const prefix = isOutgoing ? '-' : '+';
+                const hasReceipt = s.receipt_image ? 'has-receipt' : '';
+                const receiptIcon = s.receipt_image ? `<span style="font-size: 0.7rem; color: var(--green); margin-left: 4px;">📎</span>` : '';
 
                 return `
-                    <div class="payment-item">
+                    <div class="payment-item ${hasReceipt}" style="cursor: ${s.receipt_image ? 'pointer' : 'default'};" 
+                        ${s.receipt_image ? `onclick="showReceipt('${s.receipt_image}', '${direction}', ${s.amount}, '${s.created_at}')"` : ''}>
                         <div class="payment-info">
-                            <div class="payment-users">${direction}</div>
+                            <div class="payment-users">${direction}${receiptIcon}</div>
                             <div class="payment-date">${formatDateRelative(s.created_at)} · ${formatDateFull(s.created_at)}</div>
                         </div>
                         <div class="payment-amount ${amountClass}">${prefix}Rp ${parseFloat(s.amount).toLocaleString('id-ID')}</div>
@@ -332,6 +353,15 @@
             const activeUser = document.querySelector('.filter-btn.active').dataset.user;
             renderPayments(activeUser);
         });
+
+        // Show receipt modal
+        function showReceipt(imagePath, direction, amount, createdAt) {
+            document.getElementById('receiptImage').src = imageUrl(imagePath);
+            document.getElementById('receiptDirection').textContent = direction;
+            document.getElementById('receiptAmount').textContent = 'Rp ' + parseFloat(amount).toLocaleString('id-ID');
+            document.getElementById('receiptDate').textContent = formatDateFull(createdAt);
+            openModal('receiptModal');
+        }
     </script>
 </body>
 

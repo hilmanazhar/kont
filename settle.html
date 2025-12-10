@@ -282,6 +282,21 @@
                     <input type="number" class="form-control" id="confirmAmount" required min="1"
                         style="font-size: 1.25rem; font-weight: 600; text-align: center;">
                 </div>
+                <div class="form-group">
+                    <label class="form-label">Bukti Transfer (opsional)</label>
+                    <div class="upload-area" id="receiptUploadArea" style="padding: var(--space-md); cursor: pointer;">
+                        <svg viewBox="0 0 24 24"
+                            style="width: 24px; height: 24px; stroke: var(--text-muted); stroke-width: 1.5; fill: none; margin-bottom: 4px;">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                            <circle cx="8.5" cy="8.5" r="1.5" />
+                            <polyline points="21 15 16 10 5 21" />
+                        </svg>
+                        <div style="font-size: 0.75rem;">Tap untuk upload bukti TF</div>
+                        <input type="file" id="receiptInput" accept="image/*" hidden>
+                    </div>
+                    <img id="receiptPreview" class="hidden"
+                        style="max-width: 100%; max-height: 150px; margin-top: var(--space-sm); border-radius: var(--radius-md);">
+                </div>
                 <div style="display: flex; gap: var(--space-sm);">
                     <button type="button" class="btn btn-full"
                         onclick="closeModal('confirmPaymentModal')">Batal</button>
@@ -920,6 +935,24 @@ _Pesan otomatis dari Catatan Kontrakan_`;
 
         // Track mode: 'debtor' = I'm paying someone, 'creditor' = I'm confirming someone paid me
         let confirmMode = 'debtor';
+        let receiptFile = null;
+
+        // Receipt upload preview
+        document.getElementById('receiptUploadArea').addEventListener('click', () => {
+            document.getElementById('receiptInput').click();
+        });
+
+        document.getElementById('receiptInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            receiptFile = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('receiptPreview').src = e.target.result;
+                document.getElementById('receiptPreview').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        });
 
         document.getElementById('confirmPaymentForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -932,37 +965,40 @@ _Pesan otomatis dari Catatan Kontrakan_`;
                 const otherUserId = parseInt(document.getElementById('confirmFromUser').value);
                 const amount = parseFloat(document.getElementById('confirmAmount').value);
 
-                let res;
+                // Use FormData to include receipt file
+                const formData = new FormData();
+                formData.append('amount', amount);
+
+                if (receiptFile) {
+                    formData.append('receipt_image', receiptFile);
+                }
+
                 if (confirmMode === 'debtor') {
                     // I (debtor) am recording that I paid someone (creditor)
-                    res = await fetch(`${API_BASE}/settlements.php`, {
-                        method: 'POST',
-                        credentials: 'include',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            to_user: otherUserId, // Creditor
-                            amount: amount
-                        })
-                    });
+                    formData.append('to_user', otherUserId);
                 } else {
                     // I (creditor) am confirming that someone (debtor) paid me
-                    res = await fetch(`${API_BASE}/settlements.php`, {
-                        method: 'POST',
-                        credentials: 'include',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            from_user: otherUserId, // Debtor
-                            to_user: state.user.id, // Creditor (me)
-                            amount: amount
-                        })
-                    });
+                    formData.append('from_user', otherUserId);
+                    formData.append('to_user', state.user.id);
                 }
+
+                const res = await fetch(`${API_BASE}/settlements.php`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    body: formData
+                });
 
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || 'Failed');
 
                 showToast('Pembayaran dicatat!', 'success');
                 closeModal('confirmPaymentModal');
+
+                // Reset receipt
+                receiptFile = null;
+                document.getElementById('receiptPreview').classList.add('hidden');
+                document.getElementById('receiptInput').value = '';
+
                 await renderData();
             } catch (err) {
                 showToast('Gagal: ' + err.message, 'error');
