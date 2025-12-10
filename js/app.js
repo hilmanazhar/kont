@@ -284,6 +284,7 @@ function hideLoading() {
 
 // ==================== Modal ====================
 let scrollPosition = 0;
+let modalDragData = null;
 
 function openModal(id) {
     const modal = document.getElementById(id);
@@ -293,6 +294,9 @@ function openModal(id) {
         document.body.classList.add('modal-open');
         document.body.style.top = `-${scrollPosition}px`;
         modal.classList.add('active');
+
+        // Setup swipe-to-close
+        setupModalSwipe(modal);
     }
 }
 
@@ -300,11 +304,101 @@ function closeModal(id) {
     const modal = document.getElementById(id);
     if (modal) {
         modal.classList.remove('active');
+        // Reset any transform from dragging
+        const modalContent = modal.querySelector('.modal');
+        if (modalContent) {
+            modalContent.style.transform = '';
+            modalContent.style.transition = '';
+        }
         // Restore scroll position and unlock body
         document.body.classList.remove('modal-open');
         document.body.style.top = '';
         window.scrollTo(0, scrollPosition);
     }
+}
+
+// Swipe-to-close functionality
+function setupModalSwipe(overlay) {
+    const modal = overlay.querySelector('.modal');
+    if (!modal) return;
+
+    let startY = 0;
+    let currentY = 0;
+    let isDragging = false;
+
+    const handleTouchStart = (e) => {
+        // Only start drag from top area (handle or at scroll top)
+        const scrollTop = modal.scrollTop;
+        if (scrollTop > 5) return; // Don't drag if scrolled down
+
+        startY = e.touches[0].clientY;
+        isDragging = true;
+        modal.style.transition = 'none';
+    };
+
+    const handleTouchMove = (e) => {
+        if (!isDragging) return;
+
+        currentY = e.touches[0].clientY;
+        const deltaY = currentY - startY;
+
+        // Only allow dragging down
+        if (deltaY > 0) {
+            // Apply resistance effect
+            const resistance = 0.6;
+            const translateY = deltaY * resistance;
+            modal.style.transform = `translateY(${translateY}px)`;
+
+            // Change opacity based on drag distance
+            const opacity = Math.max(0.3, 1 - (deltaY / 400));
+            overlay.style.backgroundColor = `rgba(0, 0, 0, ${opacity * 0.8})`;
+
+            // Prevent scroll while dragging
+            e.preventDefault();
+        }
+    };
+
+    const handleTouchEnd = () => {
+        if (!isDragging) return;
+        isDragging = false;
+
+        const deltaY = currentY - startY;
+        const threshold = 100; // Minimum distance to close
+
+        modal.style.transition = 'transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)';
+        overlay.style.transition = 'background-color 0.3s ease';
+
+        if (deltaY > threshold) {
+            // Close modal
+            modal.style.transform = 'translateY(100%)';
+            overlay.style.backgroundColor = 'transparent';
+            setTimeout(() => {
+                closeModal(overlay.id);
+            }, 300);
+        } else {
+            // Snap back
+            modal.style.transform = 'translateY(0)';
+            overlay.style.backgroundColor = '';
+        }
+
+        startY = 0;
+        currentY = 0;
+    };
+
+    // Remove old listeners if any
+    modal.removeEventListener('touchstart', modal._touchStartHandler);
+    modal.removeEventListener('touchmove', modal._touchMoveHandler);
+    modal.removeEventListener('touchend', modal._touchEndHandler);
+
+    // Store handlers for cleanup
+    modal._touchStartHandler = handleTouchStart;
+    modal._touchMoveHandler = handleTouchMove;
+    modal._touchEndHandler = handleTouchEnd;
+
+    // Add listeners
+    modal.addEventListener('touchstart', handleTouchStart, { passive: true });
+    modal.addEventListener('touchmove', handleTouchMove, { passive: false });
+    modal.addEventListener('touchend', handleTouchEnd, { passive: true });
 }
 
 // ==================== Navigation ====================
