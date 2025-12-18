@@ -4,40 +4,50 @@
  * Handles static files and routes PHP requests
  */
 
+// Start session for all requests
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 $uri = $_SERVER['REQUEST_URI'];
 $path = parse_url($uri, PHP_URL_PATH);
-
-// Remove query string
 $file = __DIR__ . $path;
 
-// If it's a directory, look for index.html or index.php
-if (is_dir($file)) {
-    if (file_exists($file . '/index.html')) {
-        return false; // Let built-in server handle it
+// Handle API requests - always process PHP files
+if (preg_match('/\.php$/', $path)) {
+    if (is_file($file)) {
+        include $file;
+        exit;
     }
+    http_response_code(404);
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Not found']);
+    exit;
+}
+
+// If it's a directory, look for index files
+if (is_dir($file)) {
     if (file_exists($file . '/index.php')) {
         include $file . '/index.php';
-        return true;
+        exit;
+    }
+    if (file_exists($file . '/index.html')) {
+        return false; // Let built-in server handle static
     }
 }
 
-// If file exists and is not PHP, let built-in server handle it
+// If static file exists, let built-in server handle it
 if (is_file($file)) {
-    $ext = pathinfo($file, PATHINFO_EXTENSION);
-    if ($ext !== 'php') {
-        return false; // Static file - let server handle
-    }
-    // Execute PHP file
-    include $file;
-    return true;
+    return false;
 }
 
 // Default: serve index.html for SPA routing
 if (file_exists(__DIR__ . '/index.html')) {
-    include __DIR__ . '/index.html';
-    return true;
+    readfile(__DIR__ . '/index.html');
+    exit;
 }
 
 // 404
 http_response_code(404);
 echo "Not Found";
+
