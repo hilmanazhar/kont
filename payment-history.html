@@ -262,8 +262,8 @@
 
             // Filter users to only those with transactions
             allUsers = state.users
-                .filter(u => u.id !== currentUserId && usersWithTransactions.has(u.id))
-                .map(u => ({ id: u.id, name: u.display_name }));
+                .filter(u => parseInt(u.id) !== currentUserId && usersWithTransactions.has(parseInt(u.id)))
+                .map(u => ({ id: parseInt(u.id), name: u.display_name }));
 
             allUsers.forEach(user => {
                 const btn = document.createElement('button');
