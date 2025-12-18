@@ -237,7 +237,7 @@
 
         (async () => {
             if (!await checkAuth()) { window.location.href = 'login.html'; return; }
-            currentUserId = state.user.id;
+            currentUserId = parseInt(state.user.id);
             await loadUsers();
             await loadSettlements();
             buildUserFilters(); // Build after settlements loaded so we know who has transactions with us
