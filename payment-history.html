@@ -239,16 +239,30 @@
             if (!await checkAuth()) { window.location.href = 'login.html'; return; }
             currentUserId = state.user.id;
             await loadUsers();
-            buildUserFilters();
             await loadSettlements();
+            buildUserFilters(); // Build after settlements loaded so we know who has transactions with us
             await loadNotifications();
         })();
 
         function buildUserFilters() {
             const container = document.getElementById('userFilters');
-            // Get all other users - state.users is an array with {id, display_name}
+
+            // Only show users that have settlements involving current user
+            const usersWithTransactions = new Set();
+            allSettlements.forEach(s => {
+                const fromUser = parseInt(s.from_user);
+                const toUser = parseInt(s.to_user);
+                // Only count if current user is involved
+                if (fromUser === currentUserId) {
+                    usersWithTransactions.add(toUser);
+                } else if (toUser === currentUserId) {
+                    usersWithTransactions.add(fromUser);
+                }
+            });
+
+            // Filter users to only those with transactions
             allUsers = state.users
-                .filter(u => u.id !== currentUserId)
+                .filter(u => u.id !== currentUserId && usersWithTransactions.has(u.id))
                 .map(u => ({ id: u.id, name: u.display_name }));
 
             allUsers.forEach(user => {
@@ -288,11 +302,16 @@
             const toDate = document.getElementById('toDate').value;
 
             let filtered = allSettlements.filter(s => {
-                // Filter by user - use parseInt to ensure proper type comparison
+                const fromUser = parseInt(s.from_user);
+                const toUser = parseInt(s.to_user);
+
+                // ALWAYS filter to only show transactions involving current user
+                const involvesMe = (fromUser === currentUserId || toUser === currentUserId);
+                if (!involvesMe) return false;
+
+                // Additional filter by selected user
                 if (userFilter !== 'all') {
                     const userId = parseInt(userFilter);
-                    const fromUser = parseInt(s.from_user);
-                    const toUser = parseInt(s.to_user);
                     if (fromUser !== userId && toUser !== userId) return false;
                 }
 
