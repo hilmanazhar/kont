@@ -428,15 +428,23 @@
 
                 // Settlement History
                 const settlementsData = await loadSettlements();
-                const settlements = settlementsData.settlements || [];
+                const allSettlements = settlementsData.settlements || [];
                 const historyEl = document.getElementById('settlementHistory');
 
-                if (settlements.length === 0) {
+                // Filter to only show settlements involving current user
+                const currentUserId = parseInt(state.user.id);
+                const mySettlements = allSettlements.filter(s => {
+                    const fromUser = parseInt(s.from_user);
+                    const toUser = parseInt(s.to_user);
+                    return fromUser === currentUserId || toUser === currentUserId;
+                });
+
+                if (mySettlements.length === 0) {
                     historyEl.innerHTML = '<div class="empty-state">Belum ada riwayat</div>';
                 } else {
-                    historyEl.innerHTML = settlements.slice(0, 5).map(s => {
-                        const isFromMe = s.from_user == state.user.id;
-                        const isToMe = s.to_user == state.user.id;
+                    historyEl.innerHTML = mySettlements.slice(0, 5).map(s => {
+                        const isFromMe = parseInt(s.from_user) === currentUserId;
+                        const isToMe = parseInt(s.to_user) === currentUserId;
                         const direction = `${s.from_name} → ${s.to_name}`;
                         const receiptIcon = s.receipt_image ? '<span style="font-size: 0.7rem; color: var(--green); margin-left: 4px;">📎</span>' : '';
                         return `
