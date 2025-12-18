@@ -915,6 +915,122 @@
             }
         }
 
+        // Show transaction detail with splits
+        function showTransactionDetail(expenseId) {
+            const expense = allExpenses.find(e => e.id == expenseId);
+            if (!expense) return;
+
+            document.getElementById('txDetailTitle').textContent = expense.description;
+
+            let splitsHtml = '';
+            if (expense.splits && expense.splits.length > 0) {
+                splitsHtml = `
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: var(--space-sm);">Dibagi ke:</div>
+                    <div class="data-list">
+                        ${expense.splits.map(s => `
+                            <div class="data-item">
+                                <div class="data-info">
+                                    <div class="data-title">${s.display_name}</div>
+                                </div>
+                                <div class="data-amount">Rp ${parseFloat(s.amount).toLocaleString('id-ID')}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                splitsHtml = '<p style="font-size: 0.875rem; color: var(--text-muted);">Tidak ada pembagian (Listrik)</p>';
+            }
+
+            document.getElementById('txDetailContent').innerHTML = `
+                <div style="text-align: center; margin-bottom: var(--space-lg);">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--green);">Rp ${parseFloat(expense.amount).toLocaleString('id-ID')}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: var(--space-xs);">
+                        <span class="data-tag category">${expense.category}</span>
+                        <span class="data-tag">${expense.paid_by_name}</span>
+                        <span class="data-tag">${formatDateShort(expense.created_at)}</span>
+                    </div>
+                </div>
+                ${splitsHtml}
+            `;
+
+            openModal('txDetailModal');
+        }
+
+        // Open delete user modal
+        function openDeleteUserModal(userId, displayName) {
+            document.getElementById('deleteUserId').value = userId;
+            document.getElementById('deleteUserName').textContent = displayName;
+            openModal('deleteUserModal');
+        }
+
+        // Confirm delete member
+        async function confirmDeleteMember() {
+            const userId = document.getElementById('deleteUserId').value;
+            try {
+                showLoading();
+                const res = await fetch(`${API_BASE}/admin.php?action=delete-user&id=${userId}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                hideLoading();
+
+                if (res.ok) {
+                    showToast(data.message || 'Member berhasil dihapus', 'success');
+                    closeModal('deleteUserModal');
+                    await loadUsers();
+                    renderUsers();
+                } else {
+                    showToast(data.error || 'Gagal menghapus member', 'error');
+                }
+            } catch (err) {
+                hideLoading();
+                showToast('Error: ' + err.message, 'error');
+            }
+        }
+
+        // Add new member
+        async function addNewMember() {
+            const username = document.getElementById('newUsername').value.trim();
+            const displayName = document.getElementById('newDisplayName').value.trim();
+            const password = document.getElementById('newPassword').value;
+
+            if (!username || !displayName || !password) {
+                showToast('Semua field harus diisi', 'error');
+                return;
+            }
+
+            try {
+                showLoading();
+                const res = await fetch(`${API_BASE}/admin.php?action=add-user`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, display_name: displayName, password })
+                });
+                const data = await res.json();
+                hideLoading();
+
+                if (res.ok) {
+                    showToast(data.message || 'Member berhasil ditambahkan', 'success');
+                    closeModal('addUserModal');
+                    // Clear form
+                    document.getElementById('newUsername').value = '';
+                    document.getElementById('newDisplayName').value = '';
+                    document.getElementById('newPassword').value = '';
+                    // Reload users
+                    await loadUsers();
+                    renderUsers();
+                } else {
+                    showToast(data.error || 'Gagal menambahkan member', 'error');
+                }
+            } catch (err) {
+                hideLoading();
+                showToast('Error: ' + err.message, 'error');
+            }
+        }
+
+
         // Search/filter event listeners
         document.getElementById('txSearch').addEventListener('input', renderTransactions);
         document.getElementById('txFromDate').addEventListener('change', renderTransactions);
