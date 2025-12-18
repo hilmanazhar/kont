@@ -4,6 +4,22 @@
  * Supports both local (XAMPP) and Railway production
  */
 
+// Suppress HTML error output - return JSON instead
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
+set_exception_handler(function($e) {
+    http_response_code(500);
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Server error: ' . $e->getMessage()]);
+    exit;
+});
+
+set_error_handler(function($severity, $message, $file, $line) {
+    throw new ErrorException($message, 0, $severity, $file, $line);
+});
+
 // Check if running on Railway or local
 if (getenv('RAILWAY_ENVIRONMENT') || getenv('MYSQLHOST')) {
     // Railway: Use environment variables
@@ -56,20 +72,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // Configure persistent sessions (30 days)
 $sessionLifetime = 60 * 60 * 24 * 30; // 30 days in seconds
 
-// Set session cookie parameters BEFORE session_start
-session_set_cookie_params([
-    'lifetime' => $sessionLifetime,
-    'path' => '/',
-    'domain' => '',
-    'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
-    'httponly' => true,
-    'samesite' => 'Lax'
-]);
+// Only configure and start session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    // Set session cookie parameters BEFORE session_start
+    session_set_cookie_params([
+        'lifetime' => $sessionLifetime,
+        'path' => '/',
+        'domain' => '',
+        'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
 
-// Set session garbage collection lifetime
-ini_set('session.gc_maxlifetime', $sessionLifetime);
+    // Set session garbage collection lifetime
+    ini_set('session.gc_maxlifetime', $sessionLifetime);
 
-session_start();
+    session_start();
+}
 
 // Regenerate session ID periodically for security (every 30 minutes of activity)
 if (!isset($_SESSION['last_regeneration'])) {
